@@ -134,6 +134,7 @@ public class AzureCosmosClient extends DB {
   private static Counter updateSuccessCounter;
   private static Counter updateFailureCounter;
   private static Timer updateSuccessLatencyTimer;
+  private static AtomicInteger loadPhaseFailure = new AtomicInteger();
 
   @Override
   public void init() throws DBException {
@@ -535,6 +536,10 @@ public class AzureCosmosClient extends DB {
    */
   @Override
   public Status insert(String table, String key, Map<String, ByteIterator> values) {
+    if (loadPhaseFailure.incrementAndGet() >= 500 && loadPhaseFailure.get() < 504) {
+      return Status.ERROR;
+    }
+
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Insert key: {} into table: {}", key, table);
     }

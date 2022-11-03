@@ -138,6 +138,7 @@ public class AzureCosmosClient extends DB {
   @Override
   public void init() throws DBException {
     System.setProperty("COSMOS.REPLICA_ADDRESS_VALIDATION_ENABLED", "true");
+    System.setProperty("azure.cosmos.directTcp.defaultOptions", "{\"channelAcquisitionContextEnabled\":\"true\"}");
     INIT_COUNT.incrementAndGet();
 
     synchronized (INIT_COUNT) {

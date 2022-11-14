@@ -213,6 +213,7 @@ public class AzureCosmosClient extends DB {
     }
 
     directConnectionConfig.setIdleEndpointTimeout(Duration.ofHours(24));
+    directConnectionConfig.setConnectTimeout(Duration.ofMillis(600));
     // Gateway connection config options.
     GatewayConnectionConfig gatewayConnectionConfig = new GatewayConnectionConfig();
 

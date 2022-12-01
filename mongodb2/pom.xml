@@ -26,15 +26,15 @@ LICENSE file.
     <relativePath>../binding-parent</relativePath>
   </parent>
 
-  <artifactId>mongodb-reactivestreams-binding</artifactId>
-  <name>MongoDB ReactiveStreams Binding</name>
+  <artifactId>mongodb2-binding</artifactId>
+  <name>mongodb2 Binding</name>
   <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-reactivestreams</artifactId>
-      <version>${mongodb.reactivestreams.version}</version>
+      <version>${mongodb2.version}</version>
     </dependency>
     <dependency>
       <groupId>site.ycsb</groupId>

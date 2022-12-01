@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
@@ -57,9 +56,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * MongoDB Reactive Streams client for YCSB framework
+ * MongoDB Reactive Streams client for YCSB framework.
  */
-public class MongoDbReactiveStreamsClient extends DB {
+public class MongoDb2Client extends DB {
 
   private static final String DEFAULT_DATABASE_NAME = "ycsb";
   private static final boolean DEFAULT_USE_UPSERT = false;
@@ -151,7 +150,7 @@ public class MongoDbReactiveStreamsClient extends DB {
   public final Status delete(final String table, final String key) {
     try {
       final MongoCollection collection = database.getCollection(table);
-      final Document q = new Document("_id", key);//Builders.start().add("_id", key).build();
+      final Document q = new Document("_id", key); //Builders.start().add("_id", key).build();
       OperationSubscriber<DeleteResult> deleteSubscriber = new OperationSubscriber();
       collection.withWriteConcern(writeConcern).deleteOne(q).subscribe(deleteSubscriber);
       if (deleteSubscriber.first() == null || deleteSubscriber.first().getDeletedCount() <= 0) {
@@ -173,7 +172,7 @@ public class MongoDbReactiveStreamsClient extends DB {
   public final void init() throws DBException {
     INIT_COUNT.incrementAndGet();
 
-    synchronized (MongoDbReactiveStreamsClient.class) {
+    synchronized (MongoDb2Client.class) {
       if (mongoClient != null) {
         return;
       }
@@ -206,11 +205,12 @@ public class MongoDbReactiveStreamsClient extends DB {
           // Default database is "ycsb" if database is not
           // specified in URL
           databaseName = this.getStringProperty("mongodb.databaseName", DEFAULT_DATABASE_NAME);
-          ;
         }
         MongoClientSettings settings = MongoClientSettings.builder()
             .applyConnectionString(connectionString)
+            .retryWrites(false)
             .build();
+
         mongoClient = MongoClients.create(settings);
 
         readPreference = settings.getReadPreference();
@@ -256,7 +256,8 @@ public class MongoDbReactiveStreamsClient extends DB {
         long result;
         if (useUpsert) {
           insertSubscriber = new OperationSubscriber<UpdateResult>();
-          collection.replaceOne(new Document("_id", toInsert.get("_id")), toInsert, REPLACE_WITH_UPSERT).subscribe(insertSubscriber);
+          collection.replaceOne(new Document("_id", toInsert.get("_id")), toInsert, REPLACE_WITH_UPSERT)
+              .subscribe(insertSubscriber);
         } else {
           insertSubscriber = new OperationSubscriber<InsertOneResult>();
           collection.insertOne(toInsert).subscribe(insertSubscriber);
@@ -417,7 +418,7 @@ public class MongoDbReactiveStreamsClient extends DB {
    * @param result      The map to fill.
    * @param queryResult The document to fill from.
    */
-  protected final static void fillMap(final Map<String, ByteIterator> result,
+  protected static final void fillMap(final Map<String, ByteIterator> result,
                                       final Document queryResult) {
     for (Map.Entry<String, Object> entry : queryResult.entrySet()) {
       if (entry.getValue() instanceof Binary) {
@@ -464,7 +465,7 @@ public class MongoDbReactiveStreamsClient extends DB {
     private volatile boolean completed;
 
     /**
-     * Construct an instance
+     * Construct an instance.
      */
     public ObservableSubscriber() {
       this.received = new ArrayList<>();
@@ -499,9 +500,9 @@ public class MongoDbReactiveStreamsClient extends DB {
     }
 
     /**
-     * Get received elements
+     * Get received elements.
      *
-     * @return the list of received elements
+     * @return the list of received elements.
      */
     public List<T> getReceived() {
       return received;
@@ -522,12 +523,12 @@ public class MongoDbReactiveStreamsClient extends DB {
      * @return the first received element
      */
     public T first() {
-      List<T> received = await().getReceived();
-      return received.size() > 0 ? received.get(0) : null;
+      List<T> receivedElements = await().getReceived();
+      return receivedElements.size() > 0 ? receivedElements.get(0) : null;
     }
 
     /**
-     * Await completion or error
+     * Await completion or error.
      *
      * @return this
      */
@@ -536,7 +537,7 @@ public class MongoDbReactiveStreamsClient extends DB {
     }
 
     /**
-     * Await completion or error
+     * Await completion or error.
      *
      * @param timeout how long to wait
      * @param unit    the time unit
@@ -559,7 +560,7 @@ public class MongoDbReactiveStreamsClient extends DB {
   }
 
   /**
-   * A CRUD operation Subscriber
+   * A CRUD operation Subscriber.
    *
    * @param <T> The publishers result type
    */
@@ -572,7 +573,7 @@ public class MongoDbReactiveStreamsClient extends DB {
   }
 
   /**
-   * A Query Subscriber
+   * A Query Subscriber.
    */
   public static class QuerySubscriber extends ObservableSubscriber<Document> {
     private Vector<HashMap<String, ByteIterator>> result;

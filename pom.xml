@@ -188,6 +188,7 @@ LICENSE file.
     <module>maprjsondb</module>
     <module>memcached</module>
     <module>mongodb</module>
+    <module>mongodb2</module>
     <module>nosqldb</module>
     <module>orientdb</module>
     <module>postgrenosql</module>
@@ -204,7 +205,6 @@ LICENSE file.
     <module>tablestore</module>
     <module>voltdb</module>
     <module>zookeeper</module>
-    <module>mongodb2</module>
   </modules>
 
   <build>

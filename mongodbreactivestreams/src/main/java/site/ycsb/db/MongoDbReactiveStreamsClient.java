@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * MongoDB Reactive Streams client for YCSB framework.
  */
-public class MongoDb2Client extends DB {
+public class MongoDbReactiveStreamsClient extends DB {
 
   private static final String DEFAULT_DATABASE_NAME = "ycsb";
   private static final boolean DEFAULT_USE_UPSERT = false;
@@ -172,7 +172,7 @@ public class MongoDb2Client extends DB {
   public final void init() throws DBException {
     INIT_COUNT.incrementAndGet();
 
-    synchronized (MongoDb2Client.class) {
+    synchronized (MongoDbReactiveStreamsClient.class) {
       if (mongoClient != null) {
         return;
       }

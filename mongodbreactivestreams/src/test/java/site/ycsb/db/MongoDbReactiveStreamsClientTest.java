@@ -48,7 +48,7 @@ import static org.junit.Assume.assumeNoException;
  * local machine. See the README.md for how to get MongoDB running.
  * </p>
  */
-public class MongoDb2ClientTest {
+public class MongoDbReactiveStreamsClientTest {
 
   /** The default port for MongoDB. */
   private static final int MONGODB_DEFAULT_PORT = 27017;
@@ -342,6 +342,6 @@ public class MongoDb2ClientTest {
   }
   
   DB instantiateClient() {
-    return new MongoDb2Client();
+    return new MongoDbReactiveStreamsClient();
   }
 }

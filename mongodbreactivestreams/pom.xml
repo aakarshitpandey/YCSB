@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-Copyright (c) 2022 YCSB contributors . All rights reserved.
+Copyright (c) 2012 - 2016 YCSB contributors. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you
 may not use this file except in compliance with the License. You
@@ -16,8 +16,8 @@ permissions and limitations under the License. See accompanying
 LICENSE file.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>site.ycsb</groupId>
@@ -26,15 +26,15 @@ LICENSE file.
     <relativePath>../binding-parent</relativePath>
   </parent>
 
-  <artifactId>mongodb2-binding</artifactId>
-  <name>mongodb2 Binding</name>
+  <artifactId>mongodbreactivestreams-binding</artifactId>
+  <name>MongoDB ReactiveStreams Binding</name>
   <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-reactivestreams</artifactId>
-      <version>${mongodb2.version}</version>
+      <version>${mongodbreactivestreams.version}</version>
     </dependency>
     <dependency>
       <groupId>site.ycsb</groupId>
@@ -48,7 +48,6 @@ LICENSE file.
       <version>1.1.2</version>
       <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -56,4 +55,5 @@ LICENSE file.
       <scope>test</scope>
     </dependency>
   </dependencies>
+
 </project>

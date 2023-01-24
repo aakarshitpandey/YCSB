@@ -29,18 +29,6 @@ LICENSE file.
   <description>
     This is the top level project that builds, packages the core and all the DB bindings for YCSB infrastructure.
   </description>
-  <repositories>
-    <repository>
-    <id>azure-sdk-for-java</id>
-    <url>https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-java/maven/v1</url>
-    <releases>
-      <enabled>true</enabled>
-    </releases>
-    <snapshots>
-      <enabled>true</enabled>
-    </snapshots>
-  </repository>
-  </repositories>
 
   <url>https://ycsb.site/</url>
   <licenses>

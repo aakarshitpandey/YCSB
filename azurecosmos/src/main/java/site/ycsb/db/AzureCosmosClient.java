@@ -67,6 +67,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Azure Cosmos DB Java V4 SDK client for YCSB.
+ */
 
 public class AzureCosmosClient extends DB {
 
@@ -137,7 +140,7 @@ public class AzureCosmosClient extends DB {
   public void init() throws DBException {
     INIT_COUNT.incrementAndGet();
     //Custom config for testing upgrade latency issues
-    System.setProperty("COSMOS.REPLICA_ADDRESS_VALIDATION_ENABLED", "true");
+    System.setProperty("COSMOS.QUERYPLAN_CACHING_ENABLED", "false");
     synchronized (INIT_COUNT) {
       if (client != null) {
         return;
@@ -208,8 +211,6 @@ public class AzureCosmosClient extends DB {
     if (directIdleConnectionTimeoutInSeconds != -1) {
       directConnectionConfig.setIdleConnectionTimeout(Duration.ofSeconds(directIdleConnectionTimeoutInSeconds));
     }
-    //Custom config for testing upgrade latency issues
-    directConnectionConfig.setIdleEndpointTimeout(Duration.ofHours(24));
 
     // Gateway connection config options.
     GatewayConnectionConfig gatewayConnectionConfig = new GatewayConnectionConfig();

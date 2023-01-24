@@ -67,9 +67,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Azure Cosmos DB Java SDK 4.36.0-alpha.20220902.2 client for YCSB.
- */
 
 public class AzureCosmosClient extends DB {
 

@@ -139,8 +139,7 @@ public class AzureCosmosClient extends DB {
   @Override
   public void init() throws DBException {
     INIT_COUNT.incrementAndGet();
-    //Custom config for testing upgrade latency is
-    System.setProperty("COSMOS.QUERYPLAN_CACHING_ENABLED", "false");
+
     synchronized (INIT_COUNT) {
       if (client != null) {
         return;

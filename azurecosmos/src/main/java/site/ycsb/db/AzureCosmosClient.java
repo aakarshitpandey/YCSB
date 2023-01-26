@@ -139,7 +139,8 @@ public class AzureCosmosClient extends DB {
   @Override
   public void init() throws DBException {
     INIT_COUNT.incrementAndGet();
-
+    //Custom config for testing upgrade latency issues
+    System.setProperty("COSMOS.REPLICA_ADDRESS_VALIDATION_ENABLED", "true");
     synchronized (INIT_COUNT) {
       if (client != null) {
         return;

@@ -319,8 +319,20 @@ public class MongoDbReactiveStreamsClient extends DB {
         }
         findPublisher.projection(projection);
       }
-      findPublisher.subscribe(readSubscriber);
-      Document queryResult = readSubscriber.first();
+      SubscriberHelpers.PrintDocumentSubscriber printDocumentSubscriber =
+          new SubscriberHelpers.PrintDocumentSubscriber();
+      findPublisher.explain().subscribe(printDocumentSubscriber);
+      //database.runCommand({getLastRequestStatistics: 1});
+      try {
+        printDocumentSubscriber.await();
+      } catch (Throwable e) {
+        e.printStackTrace();
+      }
+      System.out.println("#############################################################");
+      System.out.println("############################################################");
+      System.out.println("############################################################");
+      //Document queryResult = printDocumentSubscriber.first();
+      Document queryResult = new Document();
       if (queryResult != null) {
         fillMap(result, queryResult);
       }

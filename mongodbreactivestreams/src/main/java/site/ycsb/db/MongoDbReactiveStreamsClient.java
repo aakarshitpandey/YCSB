@@ -309,7 +309,7 @@ public class MongoDbReactiveStreamsClient extends DB {
                            final Set<String> fields, final Map<String, ByteIterator> result) {
     try {
       MongoCollection collection = database.getCollection(table);
-      OperationSubscriber<Document> readSubscriber = new OperationSubscriber();
+      OperationSubscriber<Document> readSubscriber = new PrintDocumentSubscriber();
       Document query = new Document("_id", key);
       FindPublisher<Document> findPublisher = collection.find(query);
       if (fields != null) {
@@ -319,20 +319,8 @@ public class MongoDbReactiveStreamsClient extends DB {
         }
         findPublisher.projection(projection);
       }
-      SubscriberHelpers.PrintDocumentSubscriber printDocumentSubscriber =
-          new SubscriberHelpers.PrintDocumentSubscriber();
-      findPublisher.explain().subscribe(printDocumentSubscriber);
-      //database.runCommand({getLastRequestStatistics: 1});
-      try {
-        printDocumentSubscriber.await();
-      } catch (Throwable e) {
-        e.printStackTrace();
-      }
-      System.out.println("#############################################################");
-      System.out.println("############################################################");
-      System.out.println("############################################################");
-      //Document queryResult = printDocumentSubscriber.first();
-      Document queryResult = new Document();
+      findPublisher.explain().subscribe(readSubscriber);
+      Document queryResult = readSubscriber.first();
       if (queryResult != null) {
         fillMap(result, queryResult);
       }
@@ -366,7 +354,7 @@ public class MongoDbReactiveStreamsClient extends DB {
       Document query = new Document("_id", scanRange);
       Document sort = new Document("_id", INCLUDE);
 
-      FindPublisher<Document> findPublisher = collection.find(query).sort(sort).limit(recordcount);
+      FindPublisher<Document> findPublisher = collection.find(query).sort(sort).limit(1);
       if (fields != null) {
         Document projection = new Document();
         for (String fieldName : fields) {
@@ -378,7 +366,7 @@ public class MongoDbReactiveStreamsClient extends DB {
       result.ensureCapacity(recordcount);
 
       QuerySubscriber querySubscriber = new QuerySubscriber(result);
-      findPublisher.subscribe(querySubscriber);
+      findPublisher.explain().subscribe(querySubscriber);
       querySubscriber.await();
 
       return Status.OK;
@@ -585,6 +573,18 @@ public class MongoDbReactiveStreamsClient extends DB {
   }
 
   /**
+   * A Subscriber that prints the json version of each document.
+   */
+  public static class PrintDocumentSubscriber extends OperationSubscriber<Document> {
+
+    @Override
+    public void onNext(final Document document) {
+      super.onNext(document);
+      System.out.println(document.toJson());
+    }
+  }
+
+  /**
    * A Query Subscriber.
    */
   public static class QuerySubscriber extends ObservableSubscriber<Document> {
@@ -602,6 +602,7 @@ public class MongoDbReactiveStreamsClient extends DB {
 
     @Override
     public void onNext(final Document t) {
+      System.out.println(t.toJson());
       HashMap<String, ByteIterator> resultMap =
           new HashMap<String, ByteIterator>();
       fillMap(resultMap, t);

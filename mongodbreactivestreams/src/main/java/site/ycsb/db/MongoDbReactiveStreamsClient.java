@@ -186,7 +186,7 @@ public class MongoDbReactiveStreamsClient extends DB {
       // Just use the standard connection format URL
       // http://docs.mongodb.org/manual/reference/connection-string/
       // to configure the client.
-      String url = this.getStringProperty("mongodb.url", "mongodb://localhost:27017/ycsb?w=1");
+      String url = this.getStringProperty("mongodbreactivestreams.url", "mongodb://localhost:27017/ycsb?w=1");
       url = OptionsSupport.updateUrl(url, getProperties());
 
       if (!url.startsWith("mongodb://")) {

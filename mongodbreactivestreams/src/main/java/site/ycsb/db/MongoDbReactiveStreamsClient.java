@@ -309,7 +309,7 @@ public class MongoDbReactiveStreamsClient extends DB {
                            final Set<String> fields, final Map<String, ByteIterator> result) {
     try {
       MongoCollection collection = database.getCollection(table);
-      OperationSubscriber<Document> readSubscriber = new PrintDocumentSubscriber();
+      OperationSubscriber<Document> readSubscriber = new OperationSubscriber();
       Document query = new Document("_id", key);
       FindPublisher<Document> findPublisher = collection.find(query);
       if (fields != null) {

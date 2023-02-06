@@ -319,7 +319,7 @@ public class MongoDbReactiveStreamsClient extends DB {
         }
         findPublisher.projection(projection);
       }
-      findPublisher.explain().subscribe(readSubscriber);
+      findPublisher.subscribe(readSubscriber);
       Document queryResult = readSubscriber.first();
       if (queryResult != null) {
         fillMap(result, queryResult);
@@ -366,7 +366,7 @@ public class MongoDbReactiveStreamsClient extends DB {
       result.ensureCapacity(recordcount);
 
       QuerySubscriber querySubscriber = new QuerySubscriber(result);
-      findPublisher.explain().subscribe(querySubscriber);
+      findPublisher.subscribe(querySubscriber);
       querySubscriber.await();
 
       return Status.OK;

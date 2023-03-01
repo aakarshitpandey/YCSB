@@ -87,7 +87,7 @@ DATABASES = {
     "maprdb"       : "site.ycsb.db.mapr.MapRDBClient",
     "maprjsondb"   : "site.ycsb.db.mapr.MapRJSONDBClient",
     "mongodb"      : "site.ycsb.db.MongoDbClient",
-    "mongodb2": "site.ycsb.db.MongoDb2Client",
+    "mongodbreactivestreams" : "site.ycsb.db.MongoDbReactiveStreamsClient",
     "nosqldb"      : "site.ycsb.db.NoSqlDbClient",
     "orientdb"     : "site.ycsb.db.OrientDBClient",
     "postgrenosql" : "site.ycsb.postgrenosql.PostgreNoSQLDBClient",

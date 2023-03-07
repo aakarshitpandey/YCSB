@@ -473,8 +473,8 @@ public class MongoDbReactiveStreamsClient extends DB {
     }
 
     @Override
-    public void onSubscribe(final Subscription subscription) {
-      this.subscription = subscription;
+    public void onSubscribe(final Subscription sub) {
+      this.subscription = sub;
     }
 
     @Override

@@ -39,6 +39,8 @@ import org.bson.Document;
 import org.bson.types.Binary;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import site.ycsb.ByteArrayByteIterator;
 import site.ycsb.ByteIterator;
 import site.ycsb.DB;
@@ -59,7 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * MongoDB Reactive Streams client for YCSB framework.
  */
 public class MongoDbReactiveStreamsClient extends DB {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(MongoDbReactiveStreamsClient.class);
   private static final String DEFAULT_DATABASE_NAME = "ycsb";
   private static final boolean DEFAULT_USE_UPSERT = false;
   private static final int DEFAULT_BATCH_SIZE = 1;
@@ -127,8 +129,7 @@ public class MongoDbReactiveStreamsClient extends DB {
       try {
         mongoClient.close();
       } catch (final Exception e1) {
-        System.err.println("Could not close MongoDB connection pool: "
-            + e1.toString());
+        LOGGER.error("Could not close MongoDB connection pool: " + e1.toString());
         e1.printStackTrace();
         return;
       } finally {
@@ -154,12 +155,12 @@ public class MongoDbReactiveStreamsClient extends DB {
       OperationSubscriber<DeleteResult> deleteSubscriber = new OperationSubscriber();
       collection.withWriteConcern(writeConcern).deleteOne(q).subscribe(deleteSubscriber);
       if (deleteSubscriber.first() == null || deleteSubscriber.first().getDeletedCount() <= 0) {
-        System.err.println("Nothing deleted for key " + key);
+        LOGGER.error("Nothing deleted for key " + key);
         return Status.NOT_FOUND;
       }
       return Status.OK;
     } catch (final Exception e) {
-      System.err.println(e.toString());
+      LOGGER.error(e.toString());
       return Status.ERROR;
     }
   }
@@ -190,7 +191,7 @@ public class MongoDbReactiveStreamsClient extends DB {
       url = OptionsSupport.updateUrl(url, getProperties());
 
       if (!url.startsWith("mongodb://")) {
-        System.err.println("ERROR: Invalid URL: '" + url
+        LOGGER.error("ERROR: Invalid URL: '" + url
             + "'. Must be of the form "
             + "'mongodb://<host1>:<port1>,<host2>:<port2>/database?"
             + "options'. See "
@@ -217,12 +218,10 @@ public class MongoDbReactiveStreamsClient extends DB {
         writeConcern = settings.getWriteConcern();
 
         database = mongoClient.getDatabase(databaseName);
-
-        System.out.println("mongo connection created with " + url);
+        LOGGER.info("mongo connection created with " + url);
       } catch (final Exception e1) {
-        System.err
-            .println("Could not initialize MongoDB connection pool for Loader: "
-                + e1.toString());
+        LOGGER.error("Could not initialize MongoDB connection pool for Loader: "
+            + e1.toString());
         e1.printStackTrace();
         return;
       }
@@ -326,7 +325,7 @@ public class MongoDbReactiveStreamsClient extends DB {
       }
       return queryResult != null ? Status.OK : Status.NOT_FOUND;
     } catch (final Exception e) {
-      System.err.println(e.toString());
+      LOGGER.error(e.toString());
       return Status.ERROR;
     }
   }
@@ -371,7 +370,7 @@ public class MongoDbReactiveStreamsClient extends DB {
 
       return Status.OK;
     } catch (final Exception e) {
-      System.err.println(e.toString());
+      LOGGER.error((e.toString()));
       return Status.ERROR;
     }
   }
@@ -402,12 +401,12 @@ public class MongoDbReactiveStreamsClient extends DB {
       collection.updateOne(query, update).subscribe(updateSubscriber);
       UpdateResult result = updateSubscriber.first();
       if (result.wasAcknowledged() && result.getMatchedCount() == 0) {
-        System.err.println("Nothing updated for key " + key);
+        LOGGER.error("Nothing updated for key " + key);
         return Status.NOT_FOUND;
       }
       return Status.OK;
     } catch (final Exception e) {
-      System.err.println(e.toString());
+      LOGGER.error(e.toString());
       return Status.ERROR;
     }
   }
@@ -580,7 +579,7 @@ public class MongoDbReactiveStreamsClient extends DB {
     @Override
     public void onNext(final Document document) {
       super.onNext(document);
-      System.out.println(document.toJson());
+      LOGGER.info(document.toJson());
     }
   }
 
@@ -602,7 +601,7 @@ public class MongoDbReactiveStreamsClient extends DB {
 
     @Override
     public void onNext(final Document t) {
-      System.out.println(t.toJson());
+      LOGGER.info(t.toJson());
       HashMap<String, ByteIterator> resultMap =
           new HashMap<String, ByteIterator>();
       fillMap(resultMap, t);

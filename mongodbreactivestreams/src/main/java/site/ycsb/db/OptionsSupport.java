@@ -16,6 +16,9 @@
  */
 package site.ycsb.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Properties;
 
 /**
@@ -24,7 +27,7 @@ import java.util.Properties;
  * @author rjm
  */
 public final class OptionsSupport {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(OptionsSupport.class);
   /** Value for an unavailable property. */
   private static final String UNAVAILABLE = "n/a";
 
@@ -82,7 +85,7 @@ public final class OptionsSupport {
       } else if ("majority".equals(writeConcernType)) {
         result = addUrlOption(result, "w", "majority");
       } else {
-        System.err.println("WARNING: Invalid writeConcern: '"
+        LOGGER.error("WARNING: Invalid writeConcern: '"
             + writeConcernType + "' will be ignored. "
             + "Must be one of [ unacknowledged | acknowledged | "
             + "journaled | replica_acknowledged | majority ]");
@@ -104,7 +107,7 @@ public final class OptionsSupport {
       } else if ("nearest".equals(readPreferenceType)) {
         result = addUrlOption(result, "readPreference", "nearest");
       } else {
-        System.err.println("WARNING: Invalid readPreference: '"
+        LOGGER.error("WARNING: Invalid readPreference: '"
             + readPreferenceType + "' will be ignored. "
             + "Must be one of [ primary | primary_preferred | "
             + "secondary | secondary_preferred | nearest ]");

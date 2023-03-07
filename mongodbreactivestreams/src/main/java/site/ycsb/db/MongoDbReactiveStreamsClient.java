@@ -473,8 +473,8 @@ public class MongoDbReactiveStreamsClient extends DB {
     }
 
     @Override
-    public void onSubscribe(final Subscription s) {
-      subscription = s;
+    public void onSubscribe(final Subscription subscription) {
+      this.subscription = subscription;
     }
 
     @Override
@@ -483,11 +483,11 @@ public class MongoDbReactiveStreamsClient extends DB {
     }
 
     @Override
-    public void onError(final Throwable t) {
-      if (t instanceof RuntimeException) {
-        errors.add((RuntimeException) t);
+    public void onError(final Throwable throwable) {
+      if (throwable instanceof RuntimeException) {
+        errors.add((RuntimeException) throwable);
       } else {
-        errors.add(new RuntimeException("Unexpected exception", t));
+        errors.add(new RuntimeException("Unexpected exception", throwable));
       }
       onComplete();
     }

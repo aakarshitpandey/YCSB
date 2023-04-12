@@ -844,7 +844,7 @@ public class CoreWorkload extends Workload {
       HashMap<String, ByteIterator> values = buildValues(dbkey);
       db.insert(table, dbkey, values);
     } finally {
-      transactioninsertkeysequence.acknowledge(keynum);
+      //transactioninsertkeysequence.acknowledge(keynum);
     }
   }
 

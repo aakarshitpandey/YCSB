@@ -235,7 +235,7 @@ public class AzureCosmosClient extends DB {
           AzureCosmosClient.preferredPageSize);
       ArrayList<String> preferredRegions = new ArrayList<String>();
       preferredRegions.add("South Central US");
-      preferredRegions.add( "North Central US");
+      preferredRegions.add( "East US 2");
       CosmosClientBuilder builder = new CosmosClientBuilder().endpoint(uri).key(primaryKey)
           .throttlingRetryOptions(retryOptions).consistencyLevel(consistencyLevel).userAgentSuffix(userAgent)
           .preferredRegions(preferredRegions);

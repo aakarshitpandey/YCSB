@@ -233,9 +233,12 @@ public class AzureCosmosClient extends DB {
           retryOptions.getMaxRetryWaitTime().toMillis() / 1000, AzureCosmosClient.useUpsert,
           AzureCosmosClient.maxDegreeOfParallelism, AzureCosmosClient.maxBufferedItemCount,
           AzureCosmosClient.preferredPageSize);
-
+      ArrayList<String> preferredRegions = new ArrayList<String>();
+      preferredRegions.add("South Central US");
+      preferredRegions.add( "North Central US");
       CosmosClientBuilder builder = new CosmosClientBuilder().endpoint(uri).key(primaryKey)
-          .throttlingRetryOptions(retryOptions).consistencyLevel(consistencyLevel).userAgentSuffix(userAgent);
+          .throttlingRetryOptions(retryOptions).consistencyLevel(consistencyLevel).userAgentSuffix(userAgent)
+          .preferredRegions(preferredRegions);
 
       if (useGateway) {
         builder = builder.gatewayMode(gatewayConnectionConfig);

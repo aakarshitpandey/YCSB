@@ -55,6 +55,7 @@ import site.ycsb.StringByteIterator;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -224,6 +225,13 @@ public class AzureCosmosClient extends DB {
       gatewayConnectionConfig.setIdleConnectionTimeout(Duration.ofSeconds(gatewayIdleConnectionTimeoutInSeconds));
     }
 
+    String preferredRegions = this.getStringProperty("azurecosmos.preferredRegionList", null);
+    List<String> preferredRegionList = null;
+    if (preferredRegions != null) {
+      preferredRegions = preferredRegions.trim();
+      preferredRegionList = new ArrayList<>(Arrays.asList(preferredRegions.split(",")));
+    }
+    
     try {
       LOGGER.info(
           "Creating Cosmos DB client {}, useGateway={}, consistencyLevel={},"
@@ -241,6 +249,10 @@ public class AzureCosmosClient extends DB {
         builder = builder.gatewayMode(gatewayConnectionConfig);
       } else {
         builder = builder.directMode(directConnectionConfig);
+      }
+      
+      if(preferredRegionList != null && preferredRegionList.size() > 0) {
+        builder.preferredRegions(preferredRegionList);
       }
 
       AzureCosmosClient.client = builder.buildClient();

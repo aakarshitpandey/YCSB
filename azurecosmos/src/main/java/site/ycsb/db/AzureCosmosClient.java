@@ -251,8 +251,8 @@ public class AzureCosmosClient extends DB {
       } else {
         builder = builder.directMode(directConnectionConfig);
       }
-      
-      if(preferredRegionList != null && preferredRegionList.size() > 0) {
+
+      if (preferredRegionList != null && preferredRegionList.size() > 0) {
         builder.preferredRegions(preferredRegionList);
       }
 

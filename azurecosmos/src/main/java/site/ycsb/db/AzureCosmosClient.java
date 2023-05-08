@@ -25,6 +25,7 @@ import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.DirectConnectionConfig;
 import com.azure.cosmos.GatewayConnectionConfig;
 import com.azure.cosmos.ThrottlingRetryOptions;
+import com.azure.cosmos.implementation.apachecommons.lang.StringUtils;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.CosmosPatchOperations;
@@ -227,7 +228,7 @@ public class AzureCosmosClient extends DB {
 
     String preferredRegions = this.getStringProperty("azurecosmos.preferredRegionList", null);
     List<String> preferredRegionList = null;
-    if (preferredRegions != null) {
+    if (StringUtils.isNotEmpty(preferredRegions)) {
       preferredRegions = preferredRegions.trim();
       preferredRegionList = new ArrayList<>(Arrays.asList(preferredRegions.split(",")));
     }

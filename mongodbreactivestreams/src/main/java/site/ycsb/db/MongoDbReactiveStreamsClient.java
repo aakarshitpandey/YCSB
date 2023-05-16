@@ -62,7 +62,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MongoDbReactiveStreamsClient extends DB {
   private static final Logger LOGGER = LoggerFactory.getLogger(MongoDbReactiveStreamsClient.class);
-  private static final String DEFAULT_DATABASE_NAME = "ycsb";
+  private static final String DEFAULT_DATABASE_NAME = "ycsbdb";
   private static final boolean DEFAULT_USE_UPSERT = false;
   private static final int DEFAULT_BATCH_SIZE = 1;
   /**

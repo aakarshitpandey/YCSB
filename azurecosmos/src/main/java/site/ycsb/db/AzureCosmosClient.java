@@ -78,7 +78,7 @@ public class AzureCosmosClient extends DB {
 
   // Default configuration values
   private static final ConsistencyLevel DEFAULT_CONSISTENCY_LEVEL = ConsistencyLevel.SESSION;
-  private static final String DEFAULT_DATABASE_NAME = "ycsb";
+  private static final String DEFAULT_DATABASE_NAME = "ycsbdb";
   private static final boolean DEFAULT_USE_GATEWAY = false;
   private static final boolean DEFAULT_USE_UPSERT = false;
   private static final int DEFAULT_MAX_DEGREE_OF_PARALLELISM = -1;

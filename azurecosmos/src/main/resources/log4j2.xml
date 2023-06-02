@@ -79,7 +79,7 @@
         filePattern="${BASE_PATH_DIAGNOSTICS}/delete/diagnostics.%d{yyyy-MM-dd-hh-mm-ss}.log.gz"
         ignoreExceptions="false">
       <PatternLayout pattern="${LOG_PATTERN}"/>
-      <MarkerFilter marker="QUERY_DIAGNOSTIC" onMatch="ACCEPT" onMismatch="DENY" />
+      <MarkerFilter marker="DELETE_DIAGNOSTIC" onMatch="ACCEPT" onMismatch="DENY" />
       <Policies>
         <OnStartupTriggeringPolicy />
         <SizeBasedTriggeringPolicy size="500MB" />

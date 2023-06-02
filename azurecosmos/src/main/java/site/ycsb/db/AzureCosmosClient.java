@@ -55,15 +55,9 @@ import site.ycsb.Status;
 import site.ycsb.StringByteIterator;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -439,16 +433,47 @@ public class AzureCosmosClient extends DB {
       }
 
       List<SqlParameter> paramList = new ArrayList<>();
-      paramList.add(new SqlParameter("@startkey", startkey));
+      int totalRecordCount= 100;  //change to 100k
+      int numberOfPartitionKeysToQuery=5;
 
-      SqlQuerySpec querySpec = new SqlQuerySpec(
-          this.createSelectTop(fields, recordcount) + " FROM root r WHERE r.id >= @startkey", paramList);
+      Set<String> partitionKeys = new HashSet<String>();
+      Random random = new Random();
+      String prefix = "user";
+
+      while (partitionKeys.size() < numberOfPartitionKeysToQuery){
+        partitionKeys.add(prefix + String.valueOf(random.nextInt(totalRecordCount)));
+      }
+      int i=1;
+      StringBuilder queryParametersString = new StringBuilder();
+      for (String pk : partitionKeys) {
+        if(queryParametersString.length()==0) {
+          queryParametersString.append("@pk"+i);
+        } else {
+          queryParametersString.append(",@pk"+i);
+        }
+        paramList.add(new SqlParameter("@pk"+i, pk));
+        i++;
+      }
+      SqlQuerySpec querySpec
+          = new SqlQuerySpec(" SELECT r.field1,r.field2,r.field3,r.field4,r.field5 FROM root r WHERE r.id in " +
+          "("+ queryParametersString.toString() +")", paramList);
       CosmosPagedIterable<ObjectNode> pagedIterable = container.queryItems(querySpec, queryOptions, ObjectNode.class);
       Iterator<FeedResponse<ObjectNode>> pageIterator = pagedIterable
           .iterableByPage(AzureCosmosClient.preferredPageSize).iterator();
+      Instant start = Instant.now();
       while (pageIterator.hasNext()) {
         FeedResponse<ObjectNode> feedResponse = pageIterator.next();
         List<ObjectNode> pageDocs = feedResponse.getResults();
+        Instant end = Instant.now();
+
+        if (diagnosticsLatencyThresholdInMS > 0 &&
+            Duration.between(start, end).toMillis() > diagnosticsLatencyThresholdInMS) {
+/*          LOGGER.warn(QUERY_DIAGNOSTIC, querySpec.getQueryText());
+          querySpec.getParameters().forEach(parameter
+              -> LOGGER.warn(QUERY_DIAGNOSTIC, parameter.getValue(String.class)));*/
+          LOGGER.warn(QUERY_DIAGNOSTIC, feedResponse.getCosmosDiagnostics().toString());
+        }
+
         for (ObjectNode doc : pageDocs) {
           Map<String, String> stringResults = new HashMap<>(doc.size());
           Iterator<Map.Entry<String, JsonNode>> nodeIterator = doc.fields();
@@ -460,6 +485,7 @@ public class AzureCosmosClient extends DB {
           StringByteIterator.putAllAsByteIterators(byteResults, stringResults);
           result.add(byteResults);
         }
+        start = Instant.now();
       }
 
       if (scanSuccessLatencyTimer != null) {

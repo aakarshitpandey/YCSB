@@ -433,7 +433,7 @@ public class AzureCosmosClient extends DB {
       }
 
       List<SqlParameter> paramList = new ArrayList<>();
-      int totalRecordCount= 100000;
+      int totalRecordCount= 200000;
       int numberOfPartitionKeysToQuery=5;
 
       Set<String> partitionKeys = new HashSet<String>();

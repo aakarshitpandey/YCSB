@@ -433,7 +433,7 @@ public class AzureCosmosClient extends DB {
       }
 
       List<SqlParameter> paramList = new ArrayList<>();
-      int totalRecordCount= 100;  //change to 100k
+      int totalRecordCount= 100000;
       int numberOfPartitionKeysToQuery=5;
 
       Set<String> partitionKeys = new HashSet<String>();
@@ -461,18 +461,11 @@ public class AzureCosmosClient extends DB {
       Iterator<FeedResponse<ObjectNode>> pageIterator = pagedIterable
           .iterableByPage(AzureCosmosClient.preferredPageSize).iterator();
       Instant start = Instant.now();
+      StringBuilder sb = new StringBuilder();
       while (pageIterator.hasNext()) {
         FeedResponse<ObjectNode> feedResponse = pageIterator.next();
         List<ObjectNode> pageDocs = feedResponse.getResults();
-        Instant end = Instant.now();
-
-        if (diagnosticsLatencyThresholdInMS > 0 &&
-            Duration.between(start, end).toMillis() > diagnosticsLatencyThresholdInMS) {
-/*          LOGGER.warn(QUERY_DIAGNOSTIC, querySpec.getQueryText());
-          querySpec.getParameters().forEach(parameter
-              -> LOGGER.warn(QUERY_DIAGNOSTIC, parameter.getValue(String.class)));*/
-          LOGGER.warn(QUERY_DIAGNOSTIC, feedResponse.getCosmosDiagnostics().toString());
-        }
+        sb.append(feedResponse.getCosmosDiagnostics().toString());
 
         for (ObjectNode doc : pageDocs) {
           Map<String, String> stringResults = new HashMap<>(doc.size());
@@ -485,7 +478,11 @@ public class AzureCosmosClient extends DB {
           StringByteIterator.putAllAsByteIterators(byteResults, stringResults);
           result.add(byteResults);
         }
-        start = Instant.now();
+      }
+      Instant end = Instant.now();
+      if (diagnosticsLatencyThresholdInMS > 0 &&
+            Duration.between(start, end).toMillis() > diagnosticsLatencyThresholdInMS) {
+        LOGGER.warn(QUERY_DIAGNOSTIC, sb.toString());
       }
 
       if (scanSuccessLatencyTimer != null) {

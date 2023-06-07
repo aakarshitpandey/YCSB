@@ -461,11 +461,11 @@ public class AzureCosmosClient extends DB {
       Iterator<FeedResponse<ObjectNode>> pageIterator = pagedIterable
           .iterableByPage(AzureCosmosClient.preferredPageSize).iterator();
       Instant start = Instant.now();
-      StringBuilder sb = new StringBuilder();
+      StringBuilder clientDiagnostics = new StringBuilder();
       while (pageIterator.hasNext()) {
         FeedResponse<ObjectNode> feedResponse = pageIterator.next();
         List<ObjectNode> pageDocs = feedResponse.getResults();
-        sb.append(feedResponse.getCosmosDiagnostics().toString());
+        clientDiagnostics.append(feedResponse.getCosmosDiagnostics().toString());
 
         for (ObjectNode doc : pageDocs) {
           Map<String, String> stringResults = new HashMap<>(doc.size());
@@ -482,7 +482,8 @@ public class AzureCosmosClient extends DB {
       Instant end = Instant.now();
       if (diagnosticsLatencyThresholdInMS > 0 &&
             Duration.between(start, end).toMillis() > diagnosticsLatencyThresholdInMS) {
-        LOGGER.warn(QUERY_DIAGNOSTIC, sb.toString());
+        LOGGER.warn(QUERY_DIAGNOSTIC, clientDiagnostics.toString());
+        clientDiagnostics=null;
       }
 
       if (scanSuccessLatencyTimer != null) {

@@ -75,7 +75,7 @@ public class AzureCosmosClient extends DB {
   private static final String DEFAULT_DATABASE_NAME = "ycsb";
   private static final boolean DEFAULT_USE_GATEWAY = false;
   private static final boolean DEFAULT_USE_UPSERT = false;
-  private static final int DEFAULT_MAX_DEGREE_OF_PARALLELISM = -1;
+  private static final int DEFAULT_MAX_DEGREE_OF_PARALLELISM = 0;
   private static final int DEFAULT_MAX_BUFFERED_ITEM_COUNT = 0;
   private static final int DEFAULT_PREFERRED_PAGE_SIZE = -1;
   private static final int DEFAULT_DIAGNOSTICS_LATENCY_THRESHOLD_IN_MS = -1;

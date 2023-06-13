@@ -434,7 +434,7 @@ public class AzureCosmosClient extends DB {
 
       List<SqlParameter> paramList = new ArrayList<>();
       int totalRecordCount= 200000;
-      int numberOfPartitionKeysToQuery=1;
+      int numberOfPartitionKeysToQuery=5;
 
       Set<String> partitionKeys = new HashSet<String>();
       Random random = new Random();

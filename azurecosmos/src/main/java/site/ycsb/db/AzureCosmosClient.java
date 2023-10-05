@@ -16,15 +16,7 @@
 
 package site.ycsb.db;
 
-import com.azure.cosmos.ConsistencyLevel;
-import com.azure.cosmos.CosmosClient;
-import com.azure.cosmos.CosmosClientBuilder;
-import com.azure.cosmos.CosmosContainer;
-import com.azure.cosmos.CosmosDatabase;
-import com.azure.cosmos.CosmosException;
-import com.azure.cosmos.DirectConnectionConfig;
-import com.azure.cosmos.GatewayConnectionConfig;
-import com.azure.cosmos.ThrottlingRetryOptions;
+import com.azure.cosmos.*;
 import com.azure.cosmos.implementation.apachecommons.lang.StringUtils;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
@@ -136,6 +128,7 @@ public class AzureCosmosClient extends DB {
   private static Counter updateSuccessCounter;
   private static Counter updateFailureCounter;
   private static Timer updateSuccessLatencyTimer;
+  private static CosmosAsyncClient cosmosAsyncClient;
 
   @Override
   public void init() throws DBException {
@@ -257,6 +250,7 @@ public class AzureCosmosClient extends DB {
       }
 
       AzureCosmosClient.client = builder.buildClient();
+     cosmosAsyncClient = builder.buildAsyncClient();
       LOGGER.info("Azure Cosmos DB connection created to {}", uri);
     } catch (IllegalArgumentException e) {
       if (!AzureCosmosClient.includeExceptionStackInLog) {
@@ -509,11 +503,12 @@ public class AzureCosmosClient extends DB {
       }
 
       PartitionKey pk = new PartitionKey(key);
-      CosmosItemResponse<ObjectNode> response = container.patchItem(key, pk, cosmosPatchOperations, ObjectNode.class);
-      if (diagnosticsLatencyThresholdInMS > 0 &&
+      cosmosAsyncClient.getDatabase("ycsb").getContainer("usertable").patchItem(key, pk, cosmosPatchOperations, ObjectNode.class).subscribe();
+      //CosmosItemResponse<ObjectNode> response = container.patchItem(key, pk, cosmosPatchOperations, ObjectNode.class);
+/*      if (diagnosticsLatencyThresholdInMS > 0 &&
           response.getDiagnostics().getDuration().compareTo(Duration.ofMillis(diagnosticsLatencyThresholdInMS)) > 0) {
         LOGGER.warn(PATCH_DIAGNOSTIC, response.getDiagnostics().toString());
-      }
+      }*/
 
       if (updateSuccessLatencyTimer != null) {
         long en = System.nanoTime();

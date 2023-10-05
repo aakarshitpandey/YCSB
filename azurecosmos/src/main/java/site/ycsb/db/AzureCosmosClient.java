@@ -250,7 +250,7 @@ public class AzureCosmosClient extends DB {
       }
 
       AzureCosmosClient.client = builder.buildClient();
-     cosmosAsyncClient = builder.buildAsyncClient();
+      cosmosAsyncClient = builder.buildAsyncClient();
       LOGGER.info("Azure Cosmos DB connection created to {}", uri);
     } catch (IllegalArgumentException e) {
       if (!AzureCosmosClient.includeExceptionStackInLog) {
@@ -503,7 +503,8 @@ public class AzureCosmosClient extends DB {
       }
 
       PartitionKey pk = new PartitionKey(key);
-      cosmosAsyncClient.getDatabase("ycsb").getContainer("usertable").patchItem(key, pk, cosmosPatchOperations, ObjectNode.class).subscribe();
+      cosmosAsyncClient.getDatabase("ycsb").getContainer("usertable").patchItem(key, pk, cosmosPatchOperations,
+          ObjectNode.class).subscribe();
       //CosmosItemResponse<ObjectNode> response = container.patchItem(key, pk, cosmosPatchOperations, ObjectNode.class);
 /*      if (diagnosticsLatencyThresholdInMS > 0 &&
           response.getDiagnostics().getDuration().compareTo(Duration.ofMillis(diagnosticsLatencyThresholdInMS)) > 0) {

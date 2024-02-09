@@ -521,6 +521,8 @@ public class AzureCosmosClient extends DB {
         updateSuccessLatencyTimer.record(latency, TimeUnit.MICROSECONDS);
         updateSuccessCounter.increment();
       }
+      Map<String, ByteIterator> result = new HashMap<>();
+      this.read(table, key, null, result);
       return Status.OK;
     } catch (CosmosException e) {
       int statusCode = e.getStatusCode();

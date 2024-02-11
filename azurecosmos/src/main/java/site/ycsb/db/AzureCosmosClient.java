@@ -357,6 +357,8 @@ public class AzureCosmosClient extends DB {
   @Override
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
     try {
+      Map<String, ByteIterator> values = new HashMap<>();
+      update(table, key, values);
       long st = System.nanoTime();
       CosmosContainer container = AzureCosmosClient.containerCache.get(table);
       if (container == null) {
@@ -521,8 +523,6 @@ public class AzureCosmosClient extends DB {
         updateSuccessLatencyTimer.record(latency, TimeUnit.MICROSECONDS);
         updateSuccessCounter.increment();
       }
-      Map<String, ByteIterator> result = new HashMap<>();
-      this.read(table, key, null, result);
       return Status.OK;
     } catch (CosmosException e) {
       int statusCode = e.getStatusCode();

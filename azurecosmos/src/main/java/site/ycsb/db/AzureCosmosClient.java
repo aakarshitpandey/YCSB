@@ -48,11 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
-import site.ycsb.ByteIterator;
-import site.ycsb.DB;
-import site.ycsb.DBException;
-import site.ycsb.Status;
-import site.ycsb.StringByteIterator;
+import site.ycsb.*;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -358,6 +354,7 @@ public class AzureCosmosClient extends DB {
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
     try {
       Map<String, ByteIterator> values = new HashMap<>();
+      values.put("field1", new RandomByteIterator(5));
       update(table, key, values);
       long st = System.nanoTime();
       CosmosContainer container = AzureCosmosClient.containerCache.get(table);

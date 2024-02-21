@@ -356,6 +356,11 @@ public class AzureCosmosClient extends DB {
       Map<String, ByteIterator> values = new HashMap<>();
       values.put("field1", new RandomByteIterator(5));
       update(table, key, values);
+      try {
+        Thread.sleep(5000);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
       long st = System.nanoTime();
       CosmosContainer container = AzureCosmosClient.containerCache.get(table);
       if (container == null) {

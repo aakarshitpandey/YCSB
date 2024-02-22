@@ -357,7 +357,7 @@ public class AzureCosmosClient extends DB {
       values.put("field1", new RandomByteIterator(5));
       update(table, key, values);
       try {
-        Thread.sleep(500);
+        Thread.sleep(5000);
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }

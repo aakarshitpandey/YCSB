@@ -153,13 +153,14 @@ public class AzureCosmosClient extends DB {
   private void initAzureCosmosClient() throws DBException {
 
     // Connection properties
-    String primaryKey = this.getStringProperty("azurecosmos.primaryKey", null);
-    if (primaryKey == null || primaryKey.isEmpty()) {
-      throw new DBException("Missing primary key required to connect to the database.");
+    String accessToken = this.getStringProperty("azurecosmos.primaryKey", null);
+
+    if (isNullOrEmpty(accessToken)) {
+      throw new DBException("Missing access Token required to connect to the database.");
     }
 
     String uri = this.getStringProperty("azurecosmos.uri", null);
-    if (uri == null || uri.isEmpty()) {
+    if (isNullOrEmpty(uri)) {
       throw new DBException("Missing uri required to connect to the database.");
     }
 
@@ -250,7 +251,7 @@ public class AzureCosmosClient extends DB {
 
       CosmosClientBuilder builder = new CosmosClientBuilder()
           .endpoint(uri)
-          .key(primaryKey)
+          .resourceToken(accessToken)
           .throttlingRetryOptions(retryOptions)
           .consistencyLevel(consistencyLevel)
           .userAgentSuffix(userAgent)
@@ -696,5 +697,14 @@ public class AzureCosmosClient extends DB {
           .publishPercentileHistogram()
           .register(Metrics.globalRegistry);
     }
+  }
+
+  // helper method that accepts user assigned managed identity client id and retrieve the access token from the managed identity using DefaultAzureCredential method from cosmos sdk v4
+
+
+
+
+  private boolean isNullOrEmpty(String str) {
+    return str == null || str.isEmpty();
   }
 }

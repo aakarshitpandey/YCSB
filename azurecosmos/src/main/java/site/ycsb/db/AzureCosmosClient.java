@@ -21,13 +21,11 @@ import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
-import com.azure.cosmos.CosmosDiagnosticsThresholds;
 import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.DirectConnectionConfig;
 import com.azure.cosmos.GatewayConnectionConfig;
 import com.azure.cosmos.ThrottlingRetryOptions;
 import com.azure.cosmos.implementation.apachecommons.lang.StringUtils;
-import com.azure.cosmos.models.CosmosClientTelemetryConfig;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.CosmosPatchOperations;
@@ -40,8 +38,11 @@ import com.azure.cosmos.util.CosmosPagedIterable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.microsoft.applicationinsights.TelemetryConfiguration;
+import io.micrometer.azuremonitor.AzureMonitorConfig;
+import io.micrometer.azuremonitor.AzureMonitorMeterRegistry;
+import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,6 +118,8 @@ public class AzureCosmosClient extends DB {
   private static boolean includeExceptionStackInLog;
   private static Map<String, CosmosContainer> containerCache;
   private static String userAgent;
+  
+  private static AzureMonitorMeterRegistry azureMonitorMeterRegistry;
 
   private static Counter readSuccessCounter;
   private static Counter readFailureCounter;
@@ -159,7 +162,7 @@ public class AzureCosmosClient extends DB {
     }
 
     String uri = this.getStringProperty("azurecosmos.uri", null);
-    if (uri == null || uri.isEmpty()) {
+    if (primaryKey == null || primaryKey.isEmpty()) {
       throw new DBException("Missing uri required to connect to the database.");
     }
 
@@ -229,15 +232,7 @@ public class AzureCosmosClient extends DB {
       preferredRegions = preferredRegions.trim();
       preferredRegionList = new ArrayList<>(Arrays.asList(preferredRegions.split(",")));
     }
-
-    int pointOperationLatencyThresholdInMS = this.getIntProperty("azurecosmos.pointOperationLatencyThresholdInMS",
-        100);
-
-    int nonPointOperationLatencyThresholdInMS = this.getIntProperty("azurecosmos.nonPointOperationLatencyThresholdInMS",
-        500);
-
-    int requestChargeThreshold = this.getIntProperty("azurecosmos.requestChargeThreshold", 100);
-
+    
     try {
       LOGGER.info(
           "Creating Cosmos DB client {}, useGateway={}, consistencyLevel={},"
@@ -248,18 +243,8 @@ public class AzureCosmosClient extends DB {
           AzureCosmosClient.maxDegreeOfParallelism, AzureCosmosClient.maxBufferedItemCount,
           AzureCosmosClient.preferredPageSize);
 
-      CosmosClientBuilder builder = new CosmosClientBuilder()
-          .endpoint(uri)
-          .key(primaryKey)
-          .throttlingRetryOptions(retryOptions)
-          .consistencyLevel(consistencyLevel)
-          .userAgentSuffix(userAgent)
-          .clientTelemetryConfig(new CosmosClientTelemetryConfig()
-              .diagnosticsThresholds(
-                  new CosmosDiagnosticsThresholds()
-                      .setPointOperationLatencyThreshold(Duration.ofMillis(pointOperationLatencyThresholdInMS))
-                      .setNonPointOperationLatencyThreshold(Duration.ofMillis(nonPointOperationLatencyThresholdInMS))
-                      .setRequestChargeThreshold(requestChargeThreshold)));
+      CosmosClientBuilder builder = new CosmosClientBuilder().endpoint(uri).key(primaryKey)
+          .throttlingRetryOptions(retryOptions).consistencyLevel(consistencyLevel).userAgentSuffix(userAgent);
 
       if (useGateway) {
         builder = builder.gatewayMode(gatewayConnectionConfig);
@@ -296,6 +281,7 @@ public class AzureCosmosClient extends DB {
 
     String appInsightConnectionString = this.getStringProperty("azurecosmos.appInsightConnectionString", null);
     if (appInsightConnectionString != null) {
+      this.azureMonitorMeterRegistry = this.azureMonitorMeterRegistry(appInsightConnectionString);
       registerMeter();
     }
   }
@@ -660,41 +646,72 @@ public class AzureCosmosClient extends DB {
     }
   }
 
+  private synchronized AzureMonitorMeterRegistry azureMonitorMeterRegistry(String appInsightConnectionString) {
+    if (this.azureMonitorMeterRegistry == null) {
+      Duration step = Duration.ofSeconds(Integer.getInteger("azure.cosmos.monitoring.azureMonitor.step", 10));
+      boolean enabled = !Boolean.getBoolean("azure.cosmos.monitoring.azureMonitor.disabled");
+      final AzureMonitorConfig config = new AzureMonitorConfig() {
+        @Override
+        public String get(String key) {
+          return null;
+        }
+
+        @Override
+        public Duration step() {
+          return step;
+        }
+
+        @Override
+        public boolean enabled() {
+          return enabled;
+        }
+      };
+      TelemetryConfiguration telemetryConfiguration = TelemetryConfiguration.createDefault();
+      telemetryConfiguration.setConnectionString(appInsightConnectionString);
+      azureMonitorMeterRegistry = AzureMonitorMeterRegistry
+          .builder(config)
+          .clock(Clock.SYSTEM)
+          .telemetryConfiguration(telemetryConfiguration)
+          .build();
+    }
+    return this.azureMonitorMeterRegistry;
+  }
+
   private void registerMeter() {
     if (this.getDoubleProperty("readproportion", 0) > 0) {
-      readSuccessCounter = Metrics.globalRegistry.counter("Read Successful Operations");
-      readFailureCounter = Metrics.globalRegistry.counter("Read Unsuccessful Operations");
+      readSuccessCounter = this.azureMonitorMeterRegistry.counter("Read Successful Operations");
+      readFailureCounter = this.azureMonitorMeterRegistry.counter("Read Unsuccessful Operations");
       readSuccessLatencyTimer = Timer.builder("Read Successful Latency")
           .publishPercentiles(0.5, 0.95, 0.99, 0.999, 0.9999)
           .publishPercentileHistogram()
-          .register(Metrics.globalRegistry);
+          .register(this.azureMonitorMeterRegistry);
     }
 
     if (this.getDoubleProperty("insertproportion", 0) > 0) {
-      writeSuccessCounter = Metrics.globalRegistry.counter("Write Successful Operations");
-      writeFailureCounter = Metrics.globalRegistry.counter("Write Unsuccessful Operations");
+      writeSuccessCounter = this.azureMonitorMeterRegistry.counter("Write Successful Operations");
+      writeFailureCounter = this.azureMonitorMeterRegistry.counter("Write Unsuccessful Operations");
       writeSuccessLatencyTimer = Timer.builder("Write Successful Latency")
           .publishPercentiles(0.5, 0.95, 0.99, 0.999, 0.9999)
           .publishPercentileHistogram()
-          .register(Metrics.globalRegistry);
+          .register(this.azureMonitorMeterRegistry);
     }
 
     if (this.getDoubleProperty("scanproportion", 0) > 0) {
-      scanSuccessCounter = Metrics.globalRegistry.counter("Scan Successful Operations");
-      scanFailureCounter = Metrics.globalRegistry.counter("Scan Unsuccessful Operations");
+      scanSuccessCounter = this.azureMonitorMeterRegistry.counter("Scan Successful Operations");
+      scanFailureCounter = this.azureMonitorMeterRegistry.counter("Scan Unsuccessful Operations");
       scanSuccessLatencyTimer = Timer.builder("Scan Successful Latency")
           .publishPercentiles(0.5, 0.95, 0.99, 0.999, 0.9999)
           .publishPercentileHistogram()
-          .register(Metrics.globalRegistry);
+          .register(this.azureMonitorMeterRegistry);
     }
 
     if (this.getDoubleProperty("updateproportion", 0) > 0) {
-      updateSuccessCounter = Metrics.globalRegistry.counter("Update Successful Operations");
-      updateFailureCounter = Metrics.globalRegistry.counter("Update Unsuccessful Operations");
+      updateSuccessCounter = this.azureMonitorMeterRegistry.counter("Update Successful Operations");
+      updateFailureCounter = this.azureMonitorMeterRegistry.counter("Update Unsuccessful Operations");
       updateSuccessLatencyTimer = Timer.builder("Update Successful Latency")
           .publishPercentiles(0.5, 0.95, 0.99, 0.999, 0.9999)
           .publishPercentileHistogram()
-          .register(Metrics.globalRegistry);
+          .register(this.azureMonitorMeterRegistry);
     }
   }
 }

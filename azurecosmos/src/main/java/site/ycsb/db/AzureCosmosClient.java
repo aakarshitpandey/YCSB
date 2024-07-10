@@ -162,7 +162,7 @@ public class AzureCosmosClient extends DB {
     }
 
     String uri = this.getStringProperty("azurecosmos.uri", null);
-    if (primaryKey == null || primaryKey.isEmpty()) {
+    if (uri == null || uri.isEmpty()) {
       throw new DBException("Missing uri required to connect to the database.");
     }
 

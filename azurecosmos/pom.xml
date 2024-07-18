@@ -60,12 +60,6 @@ LICENSE file.
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-azure-monitor</artifactId>
       <version>1.9.2</version> <!-- {x-version-update;io.micrometer:micrometer-registry-azure-monitor;external_dependency} -->
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.microsoft.azure</groupId>
-      <artifactId>applicationinsights-agent</artifactId>
-      <version>3.5.1</version>
     </dependency>
   </dependencies>
 </project>

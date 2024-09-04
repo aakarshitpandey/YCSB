@@ -184,20 +184,10 @@ public class MongoDbReactiveStreamsClient extends DB {
       // Set is inserts are done as upserts. Defaults to false.
       useUpsert = this.getBooleanProperty("mongodb.upsert", DEFAULT_USE_UPSERT);
 
-      // Just use the standard connection format URL
-      // http://docs.mongodb.org/manual/reference/connection-string/
+      // check http://docs.mongodb.org/manual/reference/connection-string/
       // to configure the client.
       String url = this.getStringProperty("mongodb.url", "mongodb://localhost:27017/ycsb?w=1");
       url = OptionsSupport.updateUrl(url, getProperties());
-
-      if (!url.startsWith("mongodb://")) {
-        LOGGER.error("ERROR: Invalid URL: '" + url
-            + "'. Must be of the form "
-            + "'mongodb://<host1>:<port1>,<host2>:<port2>/database?"
-            + "options'. See "
-            + "http://docs.mongodb.org/manual/reference/connection-string/.");
-        System.exit(1);
-      }
 
       ConnectionString connectionString = new ConnectionString(url);
       try {
@@ -223,7 +213,7 @@ public class MongoDbReactiveStreamsClient extends DB {
         LOGGER.error("Could not initialize MongoDB connection pool for Loader: "
             + e1.toString());
         e1.printStackTrace();
-        return;
+        System.exit(1);
       }
     }
   }

@@ -35,6 +35,7 @@ import com.azure.cosmos.models.PartitionKey;
 import com.azure.cosmos.models.SqlParameter;
 import com.azure.cosmos.models.SqlQuerySpec;
 import com.azure.cosmos.util.CosmosPagedIterable;
+import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -163,6 +164,8 @@ public class AzureCosmosClient extends DB {
     // Connection properties
     String primaryKey = this.getStringProperty("azurecosmos.primaryKey", null);
     String managedIdentityClientId = this.getStringProperty("azurecosmos.managedIdentityClientId", null);
+    String managedIdentityName = this.getStringProperty("azurecosmos.managedIdentityName", null);
+
     if (isNullOrEmpty(primaryKey) && isNullOrEmpty(managedIdentityClientId)) {
       throw new DBException("Missing primaryKey and managedIdentityClientId required to connect to the database.");
     }
@@ -251,7 +254,7 @@ public class AzureCosmosClient extends DB {
 
       CosmosClientBuilder builder = new CosmosClientBuilder()
           .endpoint(uri)
-          .credential(new DefaultAzureCredentialBuilder().managedIdentityClientId(managedIdentityClientId).build())
+          .credential(new ClientSecretCredentialBuilder().clientSecret(primaryKey).clientId(managedIdentityClientId).tenantId(managedIdentityName).build())
           .throttlingRetryOptions(retryOptions)
           .consistencyLevel(consistencyLevel)
           .userAgentSuffix(userAgent);

@@ -245,18 +245,19 @@ public class AzureCosmosClient extends DB {
       LOGGER.info(
           "Creating Cosmos DB client {}, useGateway={}, consistencyLevel={},"
               + " maxRetryAttemptsOnThrottledRequests={}, maxRetryWaitTimeInSeconds={}"
-              + " useUpsert={}, maxDegreeOfParallelism={}, maxBufferedItemCount={}, preferredPageSize={}",
+              + " useUpsert={}, maxDegreeOfParallelism={}, maxBufferedItemCount={}, preferredPageSize={}," +
+              " ClientId={}, TenantId={}",
           uri, useGateway, consistencyLevel.toString(), retryOptions.getMaxRetryAttemptsOnThrottledRequests(),
           retryOptions.getMaxRetryWaitTime().toMillis() / 1000, AzureCosmosClient.useUpsert,
           AzureCosmosClient.maxDegreeOfParallelism, AzureCosmosClient.maxBufferedItemCount,
-          AzureCosmosClient.preferredPageSize);
+          AzureCosmosClient.preferredPageSize, managedIdentityClientId, managedIdentityName);
 
       CosmosClientBuilder builder = new CosmosClientBuilder()
           .endpoint(uri)
           .credential(new ClientSecretCredentialBuilder()
+              .tenantId(managedIdentityName)
               .clientSecret(primaryKey)
-              .clientId(managedIdentityName)
-              .tenantId(managedIdentityClientId)
+              .clientId(managedIdentityClientId)
               .authorityHost("https://login.windows-ppe.net/").build())
           .throttlingRetryOptions(retryOptions)
           .consistencyLevel(consistencyLevel)
@@ -268,7 +269,7 @@ public class AzureCosmosClient extends DB {
         builder = builder.directMode(directConnectionConfig);
       }
 
-      if (preferredRegionList != null && preferredRegionList.size() > 0) {
+      if (preferredRegionList != null && !preferredRegionList.isEmpty()) {
         builder.preferredRegions(preferredRegionList);
       }
 

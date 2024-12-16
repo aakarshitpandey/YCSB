@@ -163,8 +163,7 @@ public class AzureCosmosClient extends DB {
     // Connection properties
     String primaryKey = this.getStringProperty("azurecosmos.primaryKey", null);
     String managedIdentityClientId = this.getStringProperty("azurecosmos.managedIdentityClientId", null);
-    String managedIdentityName =
-        this.getStringProperty("azurecosmos.managedIdentityName", null);
+    String managedIdentityName = this.getStringProperty("azurecosmos.managedIdentityName", null);
 
     if (isNullOrEmpty(primaryKey) && isNullOrEmpty(managedIdentityClientId)) {
       throw new DBException("Missing primaryKey and managedIdentityClientId required to connect to the database.");
@@ -256,8 +255,8 @@ public class AzureCosmosClient extends DB {
           .endpoint(uri)
           .credential(new ClientSecretCredentialBuilder()
               .clientSecret(primaryKey)
-              .clientId(managedIdentityClientId)
-              .tenantId(managedIdentityName)
+              .clientId(managedIdentityName)
+              .tenantId(managedIdentityClientId)
               .authorityHost("https://login.windows-ppe.net/").build())
           .throttlingRetryOptions(retryOptions)
           .consistencyLevel(consistencyLevel)

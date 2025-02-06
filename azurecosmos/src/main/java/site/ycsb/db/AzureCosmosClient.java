@@ -244,7 +244,8 @@ public class AzureCosmosClient extends DB {
           AzureCosmosClient.preferredPageSize);
 
       CosmosClientBuilder builder = new CosmosClientBuilder().endpoint(uri).key(primaryKey)
-          .throttlingRetryOptions(retryOptions).consistencyLevel(consistencyLevel).userAgentSuffix(userAgent);
+          .throttlingRetryOptions(retryOptions).consistencyLevel(consistencyLevel).userAgentSuffix(userAgent)
+          .endpointDiscoveryEnabled(false);
 
       if (useGateway) {
         builder = builder.gatewayMode(gatewayConnectionConfig);

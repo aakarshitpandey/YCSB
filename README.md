@@ -3,7 +3,7 @@
 This repository is a fork of the original YCSB repository. We had to create this fork as there was no response to our pull requests from the YCSB maintainers.
 
 This fork contains the following updates to Cosmos DB binding:
-- Cosmos DB Java SDK 4.64.0
+- Cosmos DB Java SDK 4.67.0
 - Upgrade to Log4J 2
 - Client diagnostic and exception logging to separate files
 - Micrometer integration

@@ -188,6 +188,10 @@ public class AzureCosmosClient extends DB {
     AzureCosmosClient.includeExceptionStackInLog = this.getBooleanProperty("azurecosmos.includeExceptionStackInLog",
         DEFAULT_INCLUDE_EXCEPTION_STACK_IN_LOG);
 
+    // Enable thin client testing
+    System.setProperty("COSMOS.THINCLIENT_ENABLED", "true");
+    System.setProperty("COSMOS.HTTP2_ENABLED", "true");
+
     ConsistencyLevel consistencyLevel = ConsistencyLevel.valueOf(
         this.getStringProperty("azurecosmos.consistencyLevel", DEFAULT_CONSISTENCY_LEVEL.toString().toUpperCase()));
     boolean useGateway = this.getBooleanProperty("azurecosmos.useGateway", DEFAULT_USE_GATEWAY);
